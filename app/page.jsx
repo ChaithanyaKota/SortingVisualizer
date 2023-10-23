@@ -5,10 +5,12 @@ export default function SortingVisualizer() {
 
   const [array, setArray] = useState([]);
 
+  
   useEffect(() => {
     setArray(Array.from({ length: 100 }, () => Math.floor(Math.random() * 1001 + 10)));
   }, []);
   
+
   function resetArray() {
     setArray(Array.from({ length: 100 }, () => Math.floor(Math.random() * 1001 + 10)));
   }
