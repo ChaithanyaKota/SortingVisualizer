@@ -4,10 +4,12 @@ import React, { useState, useEffect } from "react";
 export default function SortingVisualizer() {
   const [array, setArray] = useState([]);
 
+  // Creating a random array when page loads for first time
   useEffect(() => {
     resetArray();
   }, []);
 
+  // Function to generate new array values
   function resetArray() {
     const array = [];
     for (let i = 0; i < 100; i++) {
@@ -16,7 +18,9 @@ export default function SortingVisualizer() {
     setArray(array);
   }
 
+  // ------------------------------------------------SORTING ALGORITHMS------------------------------------------------ //
 
+  // Selection Sort
   async function selectionSort() {
     const n = array.length;
     const sortedArr = [...array];
@@ -42,13 +46,13 @@ export default function SortingVisualizer() {
     }
   }
 
+  // Bubble Sort
   async function bubbleSort() {
     const n = array.length;
     const sortedArr = [...array];
 
     for (let i = 0; i < n - 1; i++) {
       for (let j = 0; j < n - i - 1; j++) {
-
         if (sortedArr[j] > sortedArr[j + 1]) {
           // Swap elements
           let tmp = sortedArr[j];
@@ -61,11 +65,11 @@ export default function SortingVisualizer() {
           // Wait for some time before next iteration
           await new Promise((resolve) => setTimeout(resolve, 25));
         }
-
       }
     }
   }
 
+  // Insertion Sort
   async function insertionSort() {
     const n = array.length;
     const sortedArr = [...array];
@@ -74,7 +78,7 @@ export default function SortingVisualizer() {
       let key = sortedArr[i];
       let j = i - 1;
 
-      // Move elements of sortedArr[0..i-1], that are greater than key, 
+      // Move elements of sortedArr[0..i-1], that are greater than key,
       // to one position ahead of their current position
       while (j >= 0 && sortedArr[j] > key) {
         sortedArr[j + 1] = sortedArr[j];
@@ -90,40 +94,147 @@ export default function SortingVisualizer() {
     }
   }
 
+  // Merge Sort
+  async function mergeSort(arr, left, right) {
+    if (left < right) {
+      const middle = Math.floor((left + right) / 2);
+      await mergeSort(arr, left, middle);
+      await mergeSort(arr, middle + 1, right);
 
-    return (
-      <>
-        <div className="flex justify-between mx-40 my-5">
-          <button className="font-bold" onClick={resetArray}>
-            reset
-          </button>
-          <button className="font-bold" onClick={selectionSort}>
-            selection sort
-          </button>
-          <button className="font-bold" onClick={bubbleSort}>
-            bubble sort
-          </button>
-          <button className="font-bold" onClick={insertionSort}>
-            insertion sort
-          </button>
-        </div>
+      // Visualize the merge
+      setArray([...arr]);
 
-        <div className="flex justify-between px-2">
+      // Wait for some time before next iteration
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-          {array.map((value, idx) => (
-            <div
-              className="w-1.5 bg-violet-700 mx-px"
-              style={{ height: `${value}px` }}
-              key={idx}
-            >
-            </div>
-          ))}
-
-
-        </div>
-
-
-
-      </>
-    );
+      await merge(arr, left, middle, right);
+    }
   }
+
+  async function merge(arr, left, middle, right) {
+    const n1 = middle - left + 1;
+    const n2 = right - middle;
+
+    const L = [];
+    const R = [];
+
+    for (let i = 0; i < n1; i++) {
+      L[i] = arr[left + i];
+    }
+    for (let j = 0; j < n2; j++) {
+      R[j] = arr[middle + 1 + j];
+    }
+
+    let i = 0;
+    let j = 0;
+    let k = left;
+
+    while (i < n1 && j < n2) {
+      if (L[i] <= R[j]) {
+        arr[k] = L[i];
+        i++;
+      } else {
+        arr[k] = R[j];
+        j++;
+      }
+      k++;
+    }
+
+    while (i < n1) {
+      arr[k] = L[i];
+      i++;
+      k++;
+    }
+
+    while (j < n2) {
+      arr[k] = R[j];
+      j++;
+      k++;
+    }
+  }
+
+  // Quick Sort
+  async function quickSort(arr, low, high) {
+    if (low < high) {
+      const pi = await partition(arr, low, high);
+
+      // Visualize the partition
+      setArray([...arr]);
+
+      // Wait for some time before next iteration
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      await quickSort(arr, low, pi - 1);
+      await quickSort(arr, pi + 1, high);
+    }
+  }
+
+  async function partition(arr, low, high) {
+    const pivot = arr[high];
+    let i = low - 1;
+
+    for (let j = low; j <= high - 1; j++) {
+      if (arr[j] < pivot) {
+        i++;
+        const temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+
+        // Visualize the swap
+        setArray([...arr]);
+
+        // Wait for some time before next iteration
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    const temp = arr[i + 1];
+    arr[i + 1] = arr[high];
+    arr[high] = temp;
+
+    return i + 1;
+  }
+
+
+  // ------------------------------------------------RENDERING ARRAY------------------------------------------------ //
+  return (
+    <>
+      <div className="flex justify-between mx-40 my-5">
+        <button className="font-bold" onClick={resetArray}>
+          reset
+        </button>
+        <button className="font-bold" onClick={selectionSort}>
+          selection sort
+        </button>
+        <button className="font-bold" onClick={bubbleSort}>
+          bubble sort
+        </button>
+        <button className="font-bold" onClick={insertionSort}>
+          insertion sort
+        </button>
+        <button
+          className="font-bold"
+          onClick={() => quickSort(array, 0, array.length - 1)}
+        >
+          quick Sort
+        </button>
+        <button
+          className="font-bold"
+          onClick={() => mergeSort(array, 0, array.length - 1)}
+        >
+          merge Sort
+        </button>
+      </div>
+
+      <div className="flex justify-between items-end px-2">
+        {array.map((value, idx) => (
+          <div
+            className="w-1.5 bg-cyan-600 mx-px"
+            style={{ height: `${value}px` }}
+            key={idx}
+          ></div>
+        ))}
+      </div>
+    </>
+  );
+}
